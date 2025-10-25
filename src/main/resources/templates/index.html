@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>Movie Booking - Home</title>
+</head>
+<body>
+    <main>
+        <div class="jumbotron text-center py-5 bg-light">
+            <h1 class="display-4">Welcome to Movie Booking</h1>
+            <p class="lead">Book your favorite movies with just a few clicks!</p>
+        </div>
+
+        <div class="container mt-5">
+            <h2 class="mb-4">Now Showing</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div class="col" th:each="movie : ${movies}">
+                    <div class="card h-100 movie-card shadow">
+                        <img th:src="${movie.posterUrl}" class="card-img-top movie-poster" alt="Movie Poster">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${movie.title}">Movie Title</h5>
+                            <p class="card-text" th:text="${#strings.length(movie.description) > 100 ? #strings.substring(movie.description, 0, 97) + '...' : movie.description}">Description</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary" th:text="${movie.genre}">Genre</span>
+                                <span class="badge bg-info" th:text="${movie.language}">Language</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted" th:text="'Duration: ' + ${movie.duration} + ' mins'">Duration</small>
+                                <a th:href="@{/movies/{id}(id=${movie.id})}" class="btn btn-primary btn-sm">Book Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>Error - Movie Booking</title>
+</head>
+<body>
+<main>
+    <div class="container my-5">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h4>Error while processing request</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Path:</strong> <span th:text="${path}">/path</span></p>
+                <p><strong>Exception:</strong> <span th:text="${message}">Error message</span></p>
+                <hr/>
+                <h6>Stack trace</h6>
+                <pre style="max-height:400px;overflow:auto;background:#f8f9fa;padding:12px;border:1px solid #e1e1e1;">[[${stackTrace}]]</pre>
+                <div class="mt-3">
+                    <a href="/" class="btn btn-secondary">Back to home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

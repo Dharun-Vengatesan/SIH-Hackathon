@@ -1,0 +1,76 @@
+package com.moviebooking.controller;
+
+import com.moviebooking.entity.Movie;
+import com.moviebooking.repository.MovieRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class WebController {
+
+    @Autowired
+    private MovieRepository movieRepository;
+
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("movies", movieRepository.findByIsActiveTrue());
+        return "index";
+    }
+
+    @GetMapping("/movies/{id}")
+    public String movieDetails(@PathVariable Long id, Model model) {
+        return movieRepository.findById(id)
+                .map(movie -> {
+                    model.addAttribute("movie", movie);
+                    return "movie-details";
+                })
+                .orElse("redirect:/");
+    }
+}
+    }
+
+    @GetMapping("/movies/{id}/seats")
+    public String movieSeats(@PathVariable Long id, Model model) {
+        return movieRepository.findById(id)
+                .map(movie -> {
+                    model.addAttribute("movie", movie);
+                    // Get all booked seats for this movie
+                    List<Seat> bookedSeats = seatRepository.findByMovieIdAndIsBookedFalse(id);
+                    model.addAttribute("bookedSeats", 
+                        bookedSeats.stream()
+                                 .map(Seat::getSeatNumber)
+                                 .collect(Collectors.toList()));
+                    return "movie-seats";
+                })
+                .orElse("redirect:/");
+    }
+
+    @PostMapping("/movies/{id}/book")
+    public String bookSeats(@PathVariable Long id, 
+                          @RequestParam List<String> selectedSeats,
+                          RedirectAttributes redirectAttributes) {
+        return movieRepository.findById(id)
+                .map(movie -> {
+                    // Book the selected seats
+                    selectedSeats.forEach(seatNumber -> {
+                        Seat seat = new Seat();
+                        seat.setMovie(movie);
+                        seat.setSeatNumber(seatNumber);
+                        seat.setBooked(true);
+                        seat.setPrice(new BigDecimal(
+                            seatNumber.startsWith("H") ? "25.00" : // Couple seats
+                            (Integer.parseInt(seatNumber.substring(1)) >= 4 && 
+                             Integer.parseInt(seatNumber.substring(1)) <= 7) ? "15.00" : // VIP
+                            "10.00")); // Standard
+                        seatRepository.save(seat);
+                    });
+                    
+                    redirectAttributes.addFlashAttribute("message", 
+                        "Successfully booked seats: " + String.join(", ", selectedSeats));
+                    return "redirect:/movies/" + id;
+                })
+                .orElse("redirect:/");
+    }
+}
